@@ -4,6 +4,7 @@ from base64 import b64decode, b64encode, urlsafe_b64encode
 
 import frappe
 import rsa
+from frappe import _
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -19,6 +20,41 @@ class BankConnector(Document):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.validate_user_permission()
+
+	def set_connector_autoname(self):
+		"""Set document name based on bulk_transaction flag.
+		bulk_transaction = 0 → name = {account_number}
+		bulk_transaction = 1 → name = BULK_{account_number}
+		"""
+		if self.bulk_transaction:
+			self.name = f"BULK_{self.account_number}"
+		else:
+			self.name = self.account_number
+
+	def before_save(self):
+		meta = frappe.get_meta(self.doctype)
+		if meta.has_field("bulk_transaction") and meta.has_field("account_number"):
+			self.validate_duplicate_connector()
+
+	def validate_duplicate_connector(self):
+		"""Ensure only one record per account_number + bulk_transaction combination."""
+		existing = frappe.db.get_value(
+			self.doctype,
+			{
+				"account_number": self.account_number,
+				"bulk_transaction": self.bulk_transaction,
+				"name": ("!=", self.name),
+			},
+			"name",
+		)
+		frappe.log_error("validate_duplicate_connector", f"existing={existing}")
+		if existing:
+			mode = "Bulk Transaction" if self.bulk_transaction else "Single Payment"
+			link = frappe.utils.get_link_to_form(self.doctype, existing)
+			frappe.throw(
+				_(f"A {mode} connector in {self.bank} already exists for bank account {self.account_number}: {link}"),
+				frappe.DuplicateEntryError,
+			)
 
 	def is_active(self):
 		if not self.active:

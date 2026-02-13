@@ -30,11 +30,13 @@ class ConnectorSettings(Document):
 				"account_number": doc.company_account_number,
 			}
 
-			if frappe.get_meta(connector).has_field("bulk_payment"):
-				connector_filter.update({"bulk_payment": doc.bulk_transaction})
+			if frappe.get_meta(connector).has_field("bulk_transaction"):
+				connector_filter.update({"bulk_transaction": payload.bulk_transaction})
 
+			frappe.log_error("get_connector Filter", f"doctype={connector} | filter={connector_filter}")
 			connector_doc = frappe.get_doc(connector, connector_filter)
-			connector_doc.bulk_transaction = doc.bulk_transaction
+			frappe.log_error("get_connector Resolved", f"connector={connector_doc.name} | bulk_transaction={connector_doc.bulk_transaction}")
+			connector_doc.bulk_transaction = payload.bulk_transaction
 			connector_doc.doc = doc
 			connector_doc.payment_doc = payload
 			return connector_doc

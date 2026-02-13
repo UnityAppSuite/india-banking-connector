@@ -8,7 +8,7 @@ import re
 import frappe
 import requests
 from frappe import _
-from frappe.utils import cstr, getdate
+from frappe.utils import cint, cstr, getdate
 
 import india_banking_connector.utils as utils
 from india_banking_connector.connectors.bank_connector import BankConnector
@@ -21,11 +21,15 @@ class HDFCConnector(BankConnector):
 	bank = "HDFC Bank"
 
 	__all__ = ["initiate_payment", "get_payment_status"]
+ 
+	def autoname(self):
+		self.set_connector_autoname()
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.bulk_transaction = kwargs.get("bulk_transaction", 0)
+		if "bulk_transaction" in kwargs:
+			self.bulk_transaction = cint(kwargs.get("bulk_transaction"))
 		self.doc = frappe._dict(kwargs.get("doc", {}))
 		self.payment_doc = frappe._dict(kwargs.get("payment_doc", {}))
 

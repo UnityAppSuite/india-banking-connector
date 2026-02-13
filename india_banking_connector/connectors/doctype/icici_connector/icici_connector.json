@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:account_number",
  "creation": "2024-09-04 17:53:05.968095",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -10,6 +9,7 @@
   "registration_status",
   "column_break_twws",
   "testing",
+  "bulk_transaction",
   "section_break_fhpe",
   "account_number",
   "corp_id",
@@ -44,8 +44,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Account Number",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "client_key",
@@ -197,16 +196,22 @@
    "label": "Registration Status",
    "options": "Unregistered\nRegistered",
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "bulk_transaction",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Bulk Transaction"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-10-03 13:26:13.021502",
+ "modified": "2026-02-12 17:33:18.651609",
  "modified_by": "Administrator",
  "module": "Connectors",
  "name": "ICICI Connector",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

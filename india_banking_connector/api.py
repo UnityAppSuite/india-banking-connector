@@ -15,11 +15,13 @@ def connect(**payload):
 	if PV.connector_status == "failed":
 		return {"error": PV.error}
 
+	frappe.log_error("Connect Payload", f"method={PV.data.method} | bulk_transaction={PV.data.bulk_transaction}")
 	try:
 		settings = frappe.get_single("Connector Settings")
 		connector = settings.get_connector(PV.data)
 
 		if isinstance(connector, frappe.model.document.Document):
+			frappe.log_error("Connect Connector", f"connector={connector.name} | doctype={connector.doctype} | bulk_transaction={connector.bulk_transaction}")
 			return connector.get_response(PV.data.method)
 
 		return connector

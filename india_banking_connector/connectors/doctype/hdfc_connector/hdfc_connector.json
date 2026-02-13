@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:account_number",
  "creation": "2024-09-13 10:12:09.734914",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -10,6 +9,7 @@
   "mark_expired_status_as_failed",
   "column_break_lshz",
   "testing",
+  "bulk_transaction",
   "section_break_ap68",
   "account_number",
   "login_id",
@@ -45,8 +45,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Account Number",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "login_id",
@@ -132,16 +131,22 @@
    "fieldtype": "Check",
    "label": "Mark expired status as failed",
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "bulk_transaction",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Bulk Transaction"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-05 16:34:20.052261",
+ "modified": "2026-02-13 16:09:35.452583",
  "modified_by": "Administrator",
  "module": "Connectors",
  "name": "HDFC Connector",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -157,6 +162,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

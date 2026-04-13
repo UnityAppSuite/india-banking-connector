@@ -331,7 +331,7 @@ class ICICIConnector(BankConnector):
 			)
 
 	def get_transaction_type(self, bank, mode_of_transfer=None):
-		if bank == "ICICI Bank":
+		if "ICICI" in (bank or ""):
 			return "TPA"
 		if mode_of_transfer == "RTGS":
 			return "RTG"
@@ -388,9 +388,7 @@ class ICICIConnector(BankConnector):
 					"UNIQUEID": payment_details.name,
 					"DEBITACC": connector_doc.account_number,
 					"CREDITACC": payment_details.bank_account_no,
-					"IFSC": connector_doc.ifsc_code or "ICIC0000011"
-					if payment_details.bank == "ICICI Bank"
-					else payment_details.branch_code,
+					"IFSC": payment_details.branch_code,
 					"AMOUNT": cstr(payment_details.amount),
 					"CURRENCY": "INR",
 					"TXNTYPE": self.get_transaction_type(

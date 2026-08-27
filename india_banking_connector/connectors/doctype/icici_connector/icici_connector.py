@@ -580,7 +580,10 @@ class ICICIConnector(BankConnector):
 					err_msg = self.get_error_description(data.get("ErrorCode"))
 
 				res_dict.message = (
-					err_msg or data.get("errormessage") or data.get("Message")
+					err_msg
+					or data.get("errormessage")
+					or data.get("Message")
+					or "Unknown Error"
 				)
 
 		elif method == "make_payment" and data:
@@ -592,16 +595,20 @@ class ICICIConnector(BankConnector):
 				res_dict.summary_details = self.get_summary_details("Accepted")
 
 			elif data.get("errormessage") or data.get("ErrorCode"):
-				res_dict.payment_status = "ACCEPTED"
+				# The bank rejected the whole file upfront (e.g. NEFT cut-off
+				# passed): nothing reached the bank, so leave summary rows
+				# untouched and re-initiable.
+				res_dict.payment_status = "FAILED"
 				err_msg = ""
 
 				if data.get("ErrorCode"):
 					err_msg = self.get_error_description(data.get("ErrorCode"))
 				res_dict.message = (
-					err_msg or data.get("errormessage") or data.get("Message")
+					err_msg
+					or data.get("errormessage")
+					or data.get("Message")
+					or "Unknown Error"
 				)
-
-				res_dict.summary_details = self.get_summary_details("Failed")
 
 		elif method == "payment_status" and data:
 			if file_status := data.get("XML", {}).get("FILE_STATUS"):
@@ -633,7 +640,10 @@ class ICICIConnector(BankConnector):
 					err_msg = self.get_error_description(data.get("ErrorCode"))
 
 				res_dict.message = (
-					err_msg or data.get("errormessage") or data.get("Message")
+					err_msg
+					or data.get("errormessage")
+					or data.get("Message")
+					or "Unknown Error"
 				)
 
 		elif method == "bank_balance" and data:
@@ -758,7 +768,8 @@ class ICICIConnector(BankConnector):
 			"107889": "OTP Validation Failed",
 			"100901": "Consumption limits not defined for the user. Transaction cannot be processed. Please contact the bank administrator",
 			"104666": "File with the same name is already uploaded",
-		}.get(str(code), "Unknown Error")
+			"999187": "The cut-off time for NEFT bulk file uploads has passed for today. No payment was initiated. Re-initiate the payment on the next bank working day within banking hours.",
+		}.get(str(code))
 
 	def construct_payment_details_content(self, payment_doc, connector_doc):
 		file_reference_id = "".join(re.findall(r"[0-9a-zA-Z]", payment_doc.name))[-10:]
